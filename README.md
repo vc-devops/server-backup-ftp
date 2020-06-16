@@ -3,7 +3,7 @@
 # Usage
 
 ```
-/ftp-backup.sh -d $(pwd)/__tests__ --touch https://api.pigeon.vicoders.com/api/v1/backups/guest -h xxx.xxx.xxx.xxx -u xxx -p xxx --regex "xxx"
+./scripts/ftp-backup.sh -d $(pwd)/__tests__ --touch https://api.pigeon.vicoders.com/api/v1/backups/guest -h xxx.xxx.xxx.xxx -u xxx -p xxx --regex "xxx"
 ```
 
 Options
