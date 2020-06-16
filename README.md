@@ -18,5 +18,5 @@ Options
 | -d , --directory  | Backup directory   |         |
 | --home            | Home folder        | /home   |
 | --regex           | Backup pattern     | .*      |
-| --tmp             | MOVE_TO_TMP_FOLDER | true    |
+| --tmp             | MOVE_TO_TMP_FOLDER | false   |
 | --touch           | Touch URL          |         |
