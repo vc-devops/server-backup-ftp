@@ -3,7 +3,7 @@
 # Usage
 
 ```
-./scripts/ftp-backup.sh -d $(pwd)/__tests__ --touch https://api.pigeon.vicoders.com/api/v1/backups/guest -h xxx.xxx.xxx.xxx -u xxx -p xxx --regex "xxx"
+curl https://raw.githubusercontent.com/vc-devops/server-backup-ftp/production/script.sh | bash /dev/stdin --token JDJhJDA4JGRrQ0NCOWxNSHVPaGN4Z2RLai9KNGUvZEs5TnZHYXAzak41ejZXWExiOUZKeXJ2MlQwckQy
 ```
 
 Options
