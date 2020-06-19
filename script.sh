@@ -1,7 +1,6 @@
 #!/bin/sh
 set -euo pipefail
 
-POSITIONAL=()
 TOKEN=''
 TOKEN_BASE64=''
 ERP_API_URL='https://api.pigeon.vicoders.com'
@@ -70,13 +69,9 @@ while [[ $# -gt 0 ]]; do
         BACKUP_PARTTEN=$2
         shift # past argument
         ;;
-    *)                     # unknown option
-        POSITIONAL+=("$1") # save it in an array for later
-        shift              # past argument
-        ;;
+    *) ;; # unknown option
     esac
 done
-set -- "${POSITIONAL[@]}"
 
 function log() {
     printf "[$(date -u)] $1\n"
@@ -165,22 +160,23 @@ function BackupDir() {
         if [ ! -d "$TMP_FOLDER_PATH/tmp" ]; then
             mkdir -p $TMP_FOLDER_PATH/tmp
         fi
-        if $DRY_RUN; then
-            cp -R $1 $TMP_FOLDER_PATH/tmp
-        else
-            mv $1 $TMP_FOLDER_PATH/tmp
-        fi
+
+        cp -R $1 $TMP_FOLDER_PATH/tmp
+
         foldername=$(basename $1)
 
         if ! $DRY_RUN; then
-            ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $FTP_PATH $TMP_FOLDER_PATH/tmp/$foldername
+            ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $FTP_PATH $TMP_FOLDER_PATH/tmp/$foldername || {
+                rm -rf $TMP_FOLDER_PATH/tmp/$foldername
+                exit 1
+            }
         fi
         if $TOUCH; then
             touch $TMP_FOLDER_PATH/tmp/$foldername
         fi
-
+        rm -rf $TMP_FOLDER_PATH/tmp/$foldername
         if $REMOVE_AFTER_BACKUP; then
-            rm -rf $TMP_FOLDER_PATH/tmp/$foldername
+            rm -rf $1
         fi
         log "Backup $1 completed"
     else
@@ -199,14 +195,7 @@ function BackupFile() {
     echo "Backup file: $1"
 }
 
-items=()
-
-echo "find $BACKUP_DIR -regex \"$BACKUP_PARTTEN\" -maxdepth 1" | sh | tee tmp_file >/dev/null
-
-IFS=$'\n' read -d '' -r -a items <tmp_file
-rm -rf tmp_file
-
-for i in "${items[@]}"; do
+echo "find $BACKUP_DIR -regex \"$BACKUP_PARTTEN\" -maxdepth 1" | sh | while read i; do
     if [ -d "$i" ] && [ "$i" != "$BACKUP_DIR" ]; then
         BackupDir $i
     fi
