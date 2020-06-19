@@ -178,10 +178,10 @@ function BackupDir() {
             touch $TMP_FOLDER_PATH/tmp/$foldername
             echo "$TMP_FOLDER_PATH/tmp/$foldername"
         fi
-        # rm -rf $TMP_FOLDER_PATH/tmp/$foldername
-        # if $REMOVE_AFTER_BACKUP; then
-        #     rm -rf $1
-        # fi
+        rm -rf $TMP_FOLDER_PATH/tmp/$foldername
+        if $REMOVE_AFTER_BACKUP; then
+            rm -rf $1
+        fi
         log "Backup $1 completed"
     else
         foldername=$(basename $1)
