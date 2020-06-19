@@ -159,7 +159,7 @@ touch() {
 function BackupDir() {
     if $MOVE_TO_TMP_FOLDER; then
         if [ -z "$TMP_FOLDER_PATH" ]; then
-            TMP_FOLDER_PATH=$(pwd)
+            TMP_FOLDER_PATH="$BACKUP_DIR"
         fi
         if [ ! -d "$TMP_FOLDER_PATH/tmp" ]; then
             mkdir -p $TMP_FOLDER_PATH/tmp
