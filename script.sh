@@ -195,7 +195,7 @@ function BackupFile() {
     echo "Backup file: $1"
 }
 
-echo "find $BACKUP_DIR -regex \"$BACKUP_PARTTEN\" -maxdepth 1" | sh | while read i; do
+echo "find $BACKUP_DIR -maxdepth 1 -regex \"$BACKUP_PARTTEN\"" | sh | while read i; do
     if [ -d "$i" ] && [ "$i" != "$BACKUP_DIR" ]; then
         BackupDir $i
     fi
