@@ -112,7 +112,7 @@ FTP_HOST=$(echo $ACCOUNT | jq -r .'data.server.data.ip')
 FTP_USER=$(echo $ACCOUNT | jq -r .'data.user')
 FTP_PASS=$(echo $ACCOUNT | jq -r .'data.password')
 
-curl -k "ftp://$FTP_HOST/" --user "$FTP_USER:$FTP_PASS" || {
+curl -k "ftp://$FTP_HOST/" --user "$FTP_USER:$FTP_PASS" >/dev/null || {
     error "Can not connect to $FTP_HOST"
     exit 1
 }
