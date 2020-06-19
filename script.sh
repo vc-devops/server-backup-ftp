@@ -112,6 +112,11 @@ FTP_HOST=$(echo $ACCOUNT | jq -r .'data.server.data.ip')
 FTP_USER=$(echo $ACCOUNT | jq -r .'data.user')
 FTP_PASS=$(echo $ACCOUNT | jq -r .'data.password')
 
+curl -k "ftp://$FTP_HOST/" --user "$FTP_USER:$FTP_PASS" || {
+    error "Can not connect to $FTP_HOST"
+    exit 1
+}
+
 if $TOUCH; then
     regex='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
     if ! [[ $TOUCH_URL =~ $regex ]]; then
@@ -122,9 +127,7 @@ fi
 
 touch() {
     folder=$1
-    files=()
-    files=($(ls $folder))
-    for file in "${files[@]}"; do
+    echo "find $folder -maxdepth 1 -not -type d" | sh | while read file; do
         if [ -f "$folder/$file" ]; then
             reseller=''
             username=''
@@ -173,11 +176,12 @@ function BackupDir() {
         fi
         if $TOUCH; then
             touch $TMP_FOLDER_PATH/tmp/$foldername
+            echo "$TMP_FOLDER_PATH/tmp/$foldername"
         fi
-        rm -rf $TMP_FOLDER_PATH/tmp/$foldername
-        if $REMOVE_AFTER_BACKUP; then
-            rm -rf $1
-        fi
+        # rm -rf $TMP_FOLDER_PATH/tmp/$foldername
+        # if $REMOVE_AFTER_BACKUP; then
+        #     rm -rf $1
+        # fi
         log "Backup $1 completed"
     else
         foldername=$(basename $1)
