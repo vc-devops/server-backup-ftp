@@ -8,15 +8,6 @@
 
 Options
 
-| Option            | Description        | Default |
-| ----------------- | ------------------ | ------- |
-| -dry , --dry-run  | Run in dry mode    |         |
-| -ip , --server-ip | Current Server IP  |         |
-| -h , --host       | FTP Server         |         |
-| -u , --user       | FTP User           |         |
-| -p , --password   | FTP Password       |         |
-| -d , --directory  | Backup directory   |         |
-| --home            | Home folder        | /home   |
-| --regex           | Backup pattern     | .*      |
-| --tmp             | MOVE_TO_TMP_FOLDER | false   |
-| --touch           | Touch URL          |         |
+| Option  | Description                  | Default |
+| ------- | ---------------------------- | ------- |
+| --token | Token to get correct account |         |

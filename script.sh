@@ -1,25 +1,36 @@
-#!/bin/bash
+#!/bin/sh
+
 POSITIONAL=()
+TOKEN=''
+TOKEN_BASE64=''
+ERP_API_URL='https://api.pigeon.vicoders.com'
 DRY_RUN=false
-SERVER_IP=''
 FTP_HOST=''
 FTP_USER=''
 FTP_PASS=''
 FTP_PATH='/'
-BACKUP_DIR=''
-BACKUP_FILE=false
-BACKUP_FOLDER=false
-BACKUP_PARTTEN=''
-MOVE_TO_TMP_FOLDER=false
-TMP_FOLDER_PATH=''
+BACKUP_DIR=$(pwd)
+BACKUP_PARTTEN='.*Full-Code[0-7]-.*'
+MOVE_TO_TMP_FOLDER=true
+TMP_FOLDER_PATH=$(pwd)
 REMOVE_AFTER_BACKUP=true
-TOUCH=false
-TOUCH_URL=''
+TOUCH=true
+TOUCH_URL='https://api.pigeon.vicoders.com/api/v1/backups/guest'
 HOME_PATH='/home'
 while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
+    --token)
+        TOKEN_BASE64="$2"
+        shift # past argument
+        shift # past value
+        ;;
+    --api-url)
+        ERP_API_URL="$2"
+        shift # past argument
+        shift # past value
+        ;;
     -dry | --dry-run)
         DRY_RUN=true
         shift # past argument
@@ -54,26 +65,8 @@ while [[ $# -gt 0 ]]; do
         HOME_PATH="$2"
         shift # past argument
         ;;
-    --file)
-        BACKUP_FILE=true
-        shift # past argument
-        ;;
-    --folder)
-        BACKUP_FILE=true
-        shift # past argument
-        ;;
     --regex)
         BACKUP_PARTTEN=$2
-        shift # past argument
-        ;;
-    --tmp)
-        MOVE_TO_TMP_FOLDER=true
-        TMP_FOLDER_PATH="$2"
-        shift # past argument
-        ;;
-    --touch)
-        TOUCH=true
-        TOUCH_URL="$2"
         shift # past argument
         ;;
     *)                     # unknown option
@@ -84,38 +77,44 @@ while [[ $# -gt 0 ]]; do
 done
 set -- "${POSITIONAL[@]}"
 
-log() {
+function log() {
     printf "[$(date -u)] $1\n"
 }
 
-if [ ! -d "$BACKUP_DIR" ]; then
-    echo "$BACKUP_DIR directory does not exist"
+function error() {
+    printf "[ERROR][$(date -u)] $1\n"
     exit 1
+}
+
+function join() {
+    local IFS="$1"
+    shift
+    echo "$*"
+}
+
+function parseToken() {
+    echo $1 | base64 --decode
+}
+
+function getAccount() {
+    curl --header "Content-Type: application/json" --request GET "$ERP_API_URL/api/v1/servers/accounts/get-by-token?token=$1"
+}
+
+function getServer() {
+    curl --header "Content-Type: application/json" --request GET "$ERP_API_URL/api/v1/servers/accounts/get-by-token?token=$1"
+}
+
+if [ -z "$TOKEN_BASE64" ]; then
+    error "TOKEN is required"
 fi
 
-if [ -z "$BACKUP_PARTTEN" ]; then
-    BACKUP_PARTTEN='.*'
-fi
+TOKEN="$(parseToken $TOKEN_BASE64)"
 
-if [ ! -d "$HOME_PATH" ]; then
-    echo "$HOME_PATH directory does not exist"
-    exit 1
-fi
+ACCOUNT="$(getAccount $TOKEN)"
 
-if [ -z "$FTP_HOST" ]; then
-    log "FTP_HOST is required"
-    exit 1
-fi
-
-if [ -z "$FTP_USER" ]; then
-    log "FTP_USER is required"
-    exit 1
-fi
-
-if [ -z "$FTP_PASS" ]; then
-    log "FTP_PASS is required"
-    exit 1
-fi
+FTP_HOST=$(echo $ACCOUNT | jq -r .'data.server.data.ip')
+FTP_USER=$(echo $ACCOUNT | jq -r .'data.user')
+FTP_PASS=$(echo $ACCOUNT | jq -r .'data.password')
 
 if $TOUCH; then
     regex='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
@@ -124,12 +123,6 @@ if $TOUCH; then
         exit 1
     fi
 fi
-
-function join() {
-    local IFS="$1"
-    shift
-    echo "$*"
-}
 
 touch() {
     folder=$1

@@ -1,2 +1,4 @@
 /tmp
 .env
+/__tests__copy
+/__tests
