@@ -132,9 +132,10 @@ fi
 
 touch() {
     folder=$1
-    echo "Touching $folder/$file"
+    echo "Touching folder $folder"
     echo "find $folder -maxdepth 1 -not -type d" | sh | while read file; do
         if [ -f "$folder/$file" ]; then
+            echo "Touching folder $file"
             reseller=''
             username=''
             reseller=$(echo "$file" | cut -d . -f 2)
