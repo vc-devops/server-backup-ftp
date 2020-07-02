@@ -5,6 +5,7 @@ TOKEN=''
 TOKEN_BASE64=''
 ERP_API_URL='https://api.pigeon.vicoders.com'
 DRY_RUN=false
+SERVER_IP=''
 FTP_HOST=''
 FTP_USER=''
 FTP_PASS=''
@@ -134,7 +135,7 @@ touch() {
     folder=$1
     echo "Touching folder $folder"
     echo "find $folder -maxdepth 1 -not -type d" | sh | while read file; do
-        if [ -f "$folder/$file" ]; then
+        if [ -f "$file" ]; then
             echo "Touching folder $file"
             reseller=''
             username=''
@@ -144,11 +145,16 @@ touch() {
             echo "Reseller & Username $reseller - $username"
 
             if [ ! -z "$reseller" ] && [ ! -z "$username" ]; then
+                echo "$HOME_PATH/$username"
+                echo "$HOME_PATH/$username/domains"
                 if [ -d "$HOME_PATH/$username" ] && [ -d "$HOME_PATH/$username/domains" ]; then
                     domains=()
                     domains=($(ls $HOME_PATH/$username/domains))
                     concat=$(join , ${domains[@]})
-                    size=$(du -k $folder/$file | cut -f1)
+                    size=$(du -k $file | cut -f1)
+                    if [ -z "$SERVER_IP" ]; then
+                        SERVER_IP=$FTP_USER
+                    fi
                     if $DRY_RUN; then
                         echo "Touching data {\"ip\":\"$SERVER_IP\",\"username\":\"$username\",\"domains\":\"$concat\",\"size\": $size, \"note\":\"\"}"
                     else
