@@ -132,12 +132,16 @@ fi
 
 touch() {
     folder=$1
+    echo "Touching $folder/$file"
     echo "find $folder -maxdepth 1 -not -type d" | sh | while read file; do
         if [ -f "$folder/$file" ]; then
             reseller=''
             username=''
             reseller=$(echo "$file" | cut -d . -f 2)
             username=$(echo "$file" | cut -d . -f 3)
+
+            echo "Reseller & Username $reseller - $username"
+
             if [ ! -z "$reseller" ] && [ ! -z "$username" ]; then
                 if [ -d "$HOME_PATH/$username" ] && [ -d "$HOME_PATH/$username/domains" ]; then
                     domains=()
@@ -192,7 +196,6 @@ function BackupDir() {
         foldername=$(basename $1)
         if ! $DRY_RUN; then
             ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $FTP_PATH $1 || {
-                rm -rf $TMP_FOLDER_PATH/tmp/$foldername
                 exit 1
             }
             if $REMOVE_AFTER_BACKUP; then
