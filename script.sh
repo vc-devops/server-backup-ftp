@@ -185,7 +185,6 @@ function BackupDir() {
         fi
         if $TOUCH; then
             touch $TMP_FOLDER_PATH/tmp/$foldername
-            echo "$TMP_FOLDER_PATH/tmp/$foldername"
         fi
         rm -rf $TMP_FOLDER_PATH/tmp/$foldername
         if $REMOVE_AFTER_BACKUP; then
@@ -198,12 +197,12 @@ function BackupDir() {
             ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $FTP_PATH $1 || {
                 exit 1
             }
+            if $TOUCH; then
+                touch $1
+            fi
             if $REMOVE_AFTER_BACKUP; then
                 rm -rf $1
             fi
-        fi
-        if $TOUCH; then
-            touch $1
         fi
         log "Backup $1 completed"
     fi
