@@ -11,7 +11,7 @@ FTP_PASS=''
 FTP_PATH='/'
 BACKUP_DIR=$(pwd)
 BACKUP_PARTTEN='.*Full-Code[0-7]-.*'
-MOVE_TO_TMP_FOLDER=true
+MOVE_TO_TMP_FOLDER=false
 TMP_FOLDER_PATH=$(pwd)
 REMOVE_AFTER_BACKUP=true
 TOUCH=true
@@ -43,6 +43,11 @@ while [[ $# -gt 0 ]]; do
         ;;
     -h | --host)
         FTP_HOST="$2"
+        shift # past argument
+        shift # past value
+        ;;
+    --tmp)
+        MOVE_TO_TMP_FOLDER=true
         shift # past argument
         shift # past value
         ;;
@@ -186,7 +191,13 @@ function BackupDir() {
     else
         foldername=$(basename $1)
         if ! $DRY_RUN; then
-            ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $FTP_PATH $1
+            ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $FTP_PATH $1 || {
+                rm -rf $TMP_FOLDER_PATH/tmp/$foldername
+                exit 1
+            }
+            if $REMOVE_AFTER_BACKUP; then
+                rm -rf $1
+            fi
         fi
         if $TOUCH; then
             touch $1
