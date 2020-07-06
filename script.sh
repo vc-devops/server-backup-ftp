@@ -83,6 +83,10 @@ function log() {
     printf "[$(date -u)] $1\n"
 }
 
+function warning() {
+    printf "[$(date -u)][Warning] $1\n"
+}
+
 function error() {
     printf "[ERROR][$(date -u)] $1\n"
     exit 1
@@ -200,6 +204,7 @@ function BackupDir() {
 mkdir $foldername
 EOF
                     ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $foldername $file || {
+                        warning "can not push $file"
                         continue
                     }
                     log "Backup file $file Completed"
@@ -213,6 +218,7 @@ EOF
 
                     if [ ! -z "$reseller" ] && [ ! -z "$username" ]; then
                         touch $file $reseller $username || {
+                            warning "can not touch $file"
                             continue
                         }
                     fi

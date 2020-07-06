@@ -10,7 +10,7 @@ yum install -y jq
 ## Run command
 
 ```
-curl https://raw.githubusercontent.com/vc-devops/server-backup-ftp/production/script.sh | bash /dev/stdin --token JDJhJDA4JGRrQ0NCOWxNSHVPaGN4Z2RLai9KNGUvZEs5TnZHYXAzak41ejZXWExiOUZKeXJ2MlQwckQy
+curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/vc-devops/server-backup-ftp/production/script.sh | bash /dev/stdin --token --token {token} -d {folder_backup}
 ```
 
 Options
@@ -23,7 +23,7 @@ Options
 ## Cron job
 
 ```
-0 21 * * 6 curl https://raw.githubusercontent.com/vc-devops/server-backup-ftp/production/script.sh | bash /dev/stdin --token {token} -d {folder_backup}
+0 21 * * 6 curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/vc-devops/server-backup-ftp/production/script.sh | bash /dev/stdin --token {token} -d {folder_backup}
 
 // folder backup là folder chứa các thư mục Full-Code3 hoặc Full-Code7, ví dụ: /Work/Backup-Auto
 // token sẽ được cung cấp trên phần mềm
