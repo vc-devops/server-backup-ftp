@@ -142,7 +142,7 @@ touch() {
 
         echo "$HOME_PATH/$username"
         echo "$HOME_PATH/$username/domains"
-        if [ -d "$HOME_PATH/$username" ] && [ -d "$HOME_PATH/$username/domains" ]; then
+        if [ -d "$HOME_PATH/$username" ] && [ -d "$HOME_PATH/$username/domains" ] && [ "$(ls -A $HOME_PATH/$username/domains)" ]; then
             domains=()
             domains=($(ls $HOME_PATH/$username/domains))
             concat=$(join , ${domains[@]})
