@@ -199,7 +199,9 @@ function BackupDir() {
                     ncftp ftp://$FTP_USER:$FTP_PASS@$FTP_HOST <<EOF
 mkdir $foldername
 EOF
-                    ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $foldername $file
+                    ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $foldername $file || {
+                        continue
+                    }
                     log "Backup file $file Completed"
                     reseller=''
                     username=''
