@@ -106,6 +106,8 @@ function getServer() {
     curl --header "Content-Type: application/json" --request GET "$ERP_API_URL/api/v1/servers/accounts/get-by-token?token=$1"
 }
 
+echo "$TOKEN_BASE64"
+
 if [ -z "$TOKEN_BASE64" ]; then
     error "TOKEN is required"
 fi
@@ -132,43 +134,33 @@ if $TOUCH; then
 fi
 
 touch() {
-    folder=$1
-    echo "Touching folder $folder"
-    echo "find $folder -maxdepth 1 -not -type d" | sh | while read file; do
-        if [ -f "$file" ]; then
-            echo "Touching folder $file"
-            reseller=''
-            username=''
-            reseller=$(echo "$file" | cut -d . -f 2)
-            username=$(echo "$file" | cut -d . -f 3)
+    file=$1
+    if [ -f "$file" ]; then
+        log "Touching $file"
+        reseller=$2
+        username=$3
 
-            echo "Reseller & Username $reseller - $username"
-
-            if [ ! -z "$reseller" ] && [ ! -z "$username" ]; then
-                echo "$HOME_PATH/$username"
-                echo "$HOME_PATH/$username/domains"
-                if [ -d "$HOME_PATH/$username" ] && [ -d "$HOME_PATH/$username/domains" ]; then
-                    domains=()
-                    domains=($(ls $HOME_PATH/$username/domains))
-                    concat=$(join , ${domains[@]})
-                    size=$(du -k $file | cut -f1)
-                    if [ -z "$SERVER_IP" ]; then
-                        SERVER_IP=$FTP_USER
-                    fi
-                    if $DRY_RUN; then
-                        echo "Touching data {\"ip\":\"$SERVER_IP\",\"username\":\"$username\",\"domains\":\"$concat\",\"size\": $size, \"note\":\"\"}"
-                    else
-                        curl --header "Content-Type: application/json" \
-                            --request POST \
-                            --data "{\"ip\":\"$SERVER_IP\",\"username\":\"$username\",\"domains\":\"$concat\",\"size\": $size, \"note\":\"\"}" \
-                            $TOUCH_URL
-                    fi
-
-                fi
-
+        echo "$HOME_PATH/$username"
+        echo "$HOME_PATH/$username/domains"
+        if [ -d "$HOME_PATH/$username" ] && [ -d "$HOME_PATH/$username/domains" ]; then
+            domains=()
+            domains=($(ls $HOME_PATH/$username/domains))
+            concat=$(join , ${domains[@]})
+            size=$(du -k $file | cut -f1)
+            if [ -z "$SERVER_IP" ]; then
+                SERVER_IP=$FTP_USER
             fi
+            if $DRY_RUN; then
+                echo "Touching data {\"ip\":\"$SERVER_IP\",\"username\":\"$username\",\"domains\":\"$concat\",\"size\": $size, \"note\":\"\"}"
+            else
+                curl --header "Content-Type: application/json" \
+                    --request POST \
+                    --data "{\"ip\":\"$SERVER_IP\",\"username\":\"$username\",\"domains\":\"$concat\",\"size\": $size, \"note\":\"\"}" \
+                    $TOUCH_URL
+            fi
+
         fi
-    done
+    fi
 }
 
 function BackupDir() {
@@ -201,13 +193,31 @@ function BackupDir() {
     else
         foldername=$(basename $1)
         if ! $DRY_RUN; then
-            ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $FTP_PATH $1 || {
-                exit 1
-            }
-            if $TOUCH; then
-                touch $1
-            fi
-            if $REMOVE_AFTER_BACKUP; then
+            echo "find $1 -maxdepth 1 -not -type d" | sh | while read file; do
+                if [ -f "$file" ]; then
+                    log "Backup file $file started"
+                    ncftp ftp://$FTP_USER:$FTP_PASS@$FTP_HOST <<EOF
+mkdir $foldername
+EOF
+                    ncftpput -R -v -u "$FTP_USER" -p "$FTP_PASS" "$FTP_HOST" $foldername $file
+                    log "Backup file $file Completed"
+                    reseller=''
+                    username=''
+                    filename=$(basename $file)
+                    reseller=$(echo "$filename" | cut -d . -f 2)
+                    username=$(echo "$filename" | cut -d . -f 3)
+                    echo "Reseller: $reseller"
+                    echo "Username: $username"
+
+                    if [ ! -z "$reseller" ] && [ ! -z "$username" ]; then
+                        touch $file $reseller $username
+                    fi
+                    if $REMOVE_AFTER_BACKUP; then
+                        rm -rf $file
+                    fi
+                fi
+            done
+            if [ ! "$(ls -A $1)" ]; then
                 rm -rf $1
             fi
         fi
