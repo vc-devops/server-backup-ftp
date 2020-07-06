@@ -212,7 +212,9 @@ EOF
                     echo "Username: $username"
 
                     if [ ! -z "$reseller" ] && [ ! -z "$username" ]; then
-                        touch $file $reseller $username
+                        touch $file $reseller $username || {
+                            continue
+                        }
                     fi
                     if $REMOVE_AFTER_BACKUP; then
                         rm -rf $file
