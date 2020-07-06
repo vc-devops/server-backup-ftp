@@ -10,7 +10,7 @@ yum install -y jq
 ## Run command
 
 ```
-curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/vc-devops/server-backup-ftp/production/script.sh | bash /dev/stdin --token --token {token} -d {folder_backup}
+curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/vc-devops/server-backup-ftp/production/script.sh | bash /dev/stdin --token {token} -d {folder_backup}
 ```
 
 Options
