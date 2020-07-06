@@ -23,5 +23,9 @@ Options
 ## Cron job
 
 ```
-0 21 * * 1 curl https://raw.githubusercontent.com/vc-devops/server-backup-ftp/production/script.sh | bash /dev/stdin --token JDJhJDA4JEE0cHhac1MxZWU4UHUvLjloaWNwVWVNVnE3RFFGQ3l2VGtNaFhtNDZaN3RGVno0b2xNQ1NX -d /Work/Backup-Auto
+0 21 * * 6 curl https://raw.githubusercontent.com/vc-devops/server-backup-ftp/production/script.sh | bash /dev/stdin --token {token} -d {folder_backup}
+
+// folder backup là folder chứa các thư mục Full-Code3 hoặc Full-Code7, ví dụ: /Work/Backup-Auto
+// token sẽ được cung cấp trên phần mềm
+// 0 21 * * 6 cronjob sẽ chạy vào 21h thứ 7
 ```
