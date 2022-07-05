@@ -15,6 +15,22 @@ yum install -y jq
 
 // sed -i "s/mirrorlist=https/mirrorlist=http/" /etc/yum.repos.d/epel.repo
 ```
+
+## Allow output traffic
+
+```
+iptables -I OUTPUT -p tcp -m tcp --dport 2121 -j ACCEPT
+iptables -I OUTPUT -p tcp -m tcp --dport 2122 -j ACCEPT
+iptables -I OUTPUT -p tcp -m tcp --dport 2123 -j ACCEPT
+iptables -I OUTPUT -p tcp -m tcp --dport 2124 -j ACCEPT
+iptables -I OUTPUT -p tcp -m tcp --dport 2125 -j ACCEPT
+iptables -I OUTPUT -p tcp -m tcp --dport 2126 -j ACCEPT
+iptables -I OUTPUT -p tcp -m tcp --dport 2127 -j ACCEPT
+iptables -I OUTPUT -p tcp -m tcp --dport 2128 -j ACCEPT
+iptables -I OUTPUT -p tcp -m tcp --dport 2129 -j ACCEPT
+iptables -I OUTPUT -p tcp -m tcp --dport 2130 -j ACCEPT
+```
+
 ## Run command
 
 ```
