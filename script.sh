@@ -7,6 +7,7 @@ ERP_API_URL='https://api.pigeon.vicoders.com'
 DRY_RUN=false
 SERVER_IP=''
 FTP_HOST=''
+FTP_PORT='21'
 FTP_USER=''
 FTP_PASS=''
 FTP_PATH='/'
@@ -44,6 +45,11 @@ while [[ $# -gt 0 ]]; do
         ;;
     -h | --host)
         FTP_HOST="$2"
+        shift # past argument
+        shift # past value
+        ;;
+    -p | --port)
+        FTP_PORT="$2"
         shift # past argument
         shift # past value
         ;;
@@ -124,7 +130,7 @@ FTP_HOST=$(echo $ACCOUNT | jq -r .'data.server.data.ip')
 FTP_USER=$(echo $ACCOUNT | jq -r .'data.user')
 FTP_PASS=$(echo $ACCOUNT | jq -r .'data.password')
 
-curl -k "ftp://$FTP_HOST/" --user "$FTP_USER:$FTP_PASS" >/dev/null || {
+curl -k "ftp://$FTP_HOST:$FTP_PORT/" --user "$FTP_USER:$FTP_PASS" >/dev/null || {
     error "Can not connect to $FTP_HOST"
     exit 1
 }
